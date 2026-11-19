@@ -11,6 +11,7 @@ Please see LICENSE files in the repository root for full details.
 */
 
 import React from "react";
+import escapeHtml from "escape-html";
 import {
     ContentHelpers,
     Direction,
@@ -73,7 +74,10 @@ export const Commands = [
         args: "<message>",
         description: _td("slash_command|spoiler"),
         runFn: function (cli, roomId, threadId, message = "") {
-            return successSync(ContentHelpers.makeHtmlMessage(message, `<span data-mx-spoiler>${message}</span>`));
+            // Apply markdown so formatting such as **bold** works inside the spoiler. forceHTML keeps the output
+            // escaped HTML even for plain text.
+            const html = htmlSerializeFromMdIfNeeded(message, { forceHTML: true }) ?? escapeHtml(message);
+            return successSync(ContentHelpers.makeHtmlMessage(message, `<span data-mx-spoiler>${html}</span>`));
         },
         category: CommandCategories.messages,
     }),
